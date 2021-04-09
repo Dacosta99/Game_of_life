@@ -1,74 +1,79 @@
 import pygame
-
+#inicia pygame
 pygame.init()
 
-width, height = 1000, 1000
-screen = pygame.display.set_mode((height, width))
+#creo una ventana y le asigno un nombre al juego
+t_ventana = 1000
+pantalla = pygame.display.set_mode((t_ventana, t_ventana))
+pygame.display.set_caption("Juego De La Vida")
 
-fondo = 25, 25, 25
-screen.fill(fondo)
+#variables para los colores y pinto la pantalla
+Negro = 0, 0, 0
+Azul = 0, 0, 255
+Gris = 25, 25, 25
 
+pantalla.fill(Gris)
+
+#especifico el numero n*n celdas que quiero en mi programa
 numero_de_celdas = 100
 
-dimw = width / numero_de_celdas
-dimch = height / numero_de_celdas
+#asigno el tamaño de cada celda
+d_celdas = t_ventana / numero_de_celdas
 
-gamestate = [[0 for i in range(numero_de_celdas)] for j in range(numero_de_celdas)]
+#creo una matriz de ceros por comprension de tamaño nxn
+juego = [[0 for i in range(numero_de_celdas)] for j in range(numero_de_celdas)]
 
-# automata palo
-'''gamestate[10][2] = 1
-gamestate[11][2] = 1
-gamestate[12][2] = 1
+#agrego un patron preconfigurado
+juego[49][49] = 1
+juego[50][49] = 1
+juego[50][50] = 1
+juego[50][51] = 1
+juego[51][50] = 1
 
-gamestate[1][1] = 1
-gamestate[2][2] = 1
-gamestate[2][3] = 1
-gamestate[1][3] = 1
-gamestate[0][3] = 1'''
-
-gamestate[49][49] = 1
-gamestate[50][49] = 1
-gamestate[50][50] = 1
-gamestate[50][51] = 1
-gamestate[51][50] = 1
-
-
+#creo un bucle
 run = True
-
 while run:
+    #agrego una condicion si se cumple salgo del bucle
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             run = False
-    newgamestate = []
-    for i in gamestate:
-        newgamestate.append(list(i))
-    screen.fill(fondo)
+    #creo una nueva matriz a partir de la matriz juego
+    actualizo_juego = []
+    for i in juego:
+        actualizo_juego.append(list(i))
+    pantalla.fill(Gris)
+    #hago un ciclo que recorra la matriz y compruebe cuantas celulas vivas hay alrededor de cada celula
+    for y in range(numero_de_celdas):
+        for x in range(numero_de_celdas):
+            celulas_vecinas = juego[(x - 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                              + juego[x % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                              + juego[(x + 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                              + juego[(x - 1) % numero_de_celdas][y % numero_de_celdas] \
+                              + juego[(x + 1) % numero_de_celdas][y % numero_de_celdas] \
+                              + juego[(x - 1) % numero_de_celdas][(y + 1) % numero_de_celdas] \
+                              + juego[x % numero_de_celdas][(y + 1) % numero_de_celdas] \
+                              + juego[(x + 1) % numero_de_celdas][(y + 1) % numero_de_celdas]
+           #reglas del juego
+            #Una célula viva con 2 o 3 células vecinas vivas sigue viva, en otro caso muere (por "soledad" o "superpoblación")
+            if juego[x][y] == 1 and (celulas_vecinas < 2 or celulas_vecinas > 3):
+                actualizo_juego[x][y] = 0
+            #1 si una celula esta muerta y tiene 3 vecinas vivas la celula nace
+            elif juego[x][y] == 0 and celulas_vecinas == 3:
+                actualizo_juego[x][y] = 1
 
-    for y in range(0, numero_de_celdas):
-        for x in range(0, numero_de_celdas):
-            n_neigh = gamestate[(x - 1) % numero_de_celdas][(y - 1) % numero_de_celdas] + \
-                      gamestate[x % numero_de_celdas][(y - 1) % numero_de_celdas] + \
-                      gamestate[(x + 1) % numero_de_celdas][(y - 1) % numero_de_celdas] + \
-                      gamestate[(x - 1) % numero_de_celdas][y % numero_de_celdas] + \
-                      gamestate[(x + 1) % numero_de_celdas][y % numero_de_celdas] + \
-                      gamestate[(x - 1) % numero_de_celdas][(y + 1) % numero_de_celdas] + \
-                      gamestate[x % numero_de_celdas][(y + 1) % numero_de_celdas] + \
-                      gamestate[(x + 1) % numero_de_celdas][(y + 1) % numero_de_celdas]
 
-            if gamestate[x][y] == 0 and n_neigh == 3:
-                newgamestate[x][y] = 1
+            #creo una lista especificando sus coordenadas x & y de las celulas para posteriormente ser pintadas
+            celda = [(x * d_celdas, y * d_celdas), ((x + 1) * d_celdas, y * d_celdas),
+                     ((x + 1) * d_celdas, (y + 1) * d_celdas), (x * d_celdas, (y + 1) * d_celdas)]
 
-            elif gamestate[x][y] == 1 and (n_neigh < 2 or n_neigh > 3):
-                newgamestate[x][y] = 0
-
-            poly = [(x * dimch, y * dimch), ((x + 1) * dimch, y * dimch),
-                    ((x + 1) * dimch, (y + 1) * dimch), (x * dimch, (y + 1) * dimch)]
-
-            if newgamestate[x][y] == 0:
-                pygame.draw.polygon(screen, (0, 0, 0), poly, 1)
+            # pinto la celdas
+            if actualizo_juego[x][y] == 0:
+                pygame.draw.polygon(pantalla, Negro, celda, 1)
             else:
-                pygame.draw.polygon(screen, (0, 0, 255), poly, 0)
-    gamestate = []
-    for i in newgamestate:
-        gamestate.append(list(i))
+                pygame.draw.polygon(pantalla, Azul, celda, 0)
+
+    #actualizo el estado del juego
+    juego = []
+    for i in actualizo_juego:
+        juego.append(list(i))
     pygame.display.flip()
