@@ -44,9 +44,11 @@ def Intro():
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 run = False
-            teclado = pygame.key.get_pressed()
-            if teclado[pygame.K_c]:
-                juego_de_la_vida()
+            else:
+                teclado = pygame.key.get_pressed()
+                if teclado[pygame.K_c]:
+                    juego_de_la_vida()
+                    run = False
 
 
 def juego_de_la_vida():
@@ -71,10 +73,19 @@ def juego_de_la_vida():
 
     # creo un bucle
     run = True
+    pausar = True
     while run:
         # agrego una condicion si se cumple salgo del bucle
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
+                run = False
+            teclado = pygame.key.get_pressed()
+            if teclado[pygame.K_p]:
+                pausar = False
+            if teclado[pygame.K_c]:
+                pausar = True
+            if teclado[pygame.K_q]:
+                Intro()
                 run = False
         # creo una nueva matriz a partir de la matriz juego
         actualizo_juego = []
@@ -84,21 +95,22 @@ def juego_de_la_vida():
         # hago un ciclo que recorra la matriz y compruebe cuantas celulas vivas hay alrededor de cada celula
         for y in range(numero_de_celdas):
             for x in range(numero_de_celdas):
-                celulas_vecinas = juego[(x - 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
-                                  + juego[x % numero_de_celdas][(y - 1) % numero_de_celdas] \
-                                  + juego[(x + 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
-                                  + juego[(x - 1) % numero_de_celdas][y % numero_de_celdas] \
-                                  + juego[(x + 1) % numero_de_celdas][y % numero_de_celdas] \
-                                  + juego[(x - 1) % numero_de_celdas][(y + 1) % numero_de_celdas] \
-                                  + juego[x % numero_de_celdas][(y + 1) % numero_de_celdas] \
-                                  + juego[(x + 1) % numero_de_celdas][(y + 1) % numero_de_celdas]
-                # reglas del juego
-                # Una célula viva con 2 o 3 células vecinas vivas sigue viva, en otro caso muere (por "soledad" o "superpoblación")
-                if juego[x][y] == 1 and (celulas_vecinas < 2 or celulas_vecinas > 3):
-                    actualizo_juego[x][y] = 0
-                # 1 si una celula esta muerta y tiene 3 vecinas vivas la celula nace
-                elif juego[x][y] == 0 and celulas_vecinas == 3:
-                    actualizo_juego[x][y] = 1
+                if pausar:
+                    celulas_vecinas = juego[(x - 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                                      + juego[x % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                                      + juego[(x + 1) % numero_de_celdas][(y - 1) % numero_de_celdas] \
+                                      + juego[(x - 1) % numero_de_celdas][y % numero_de_celdas] \
+                                      + juego[(x + 1) % numero_de_celdas][y % numero_de_celdas] \
+                                      + juego[(x - 1) % numero_de_celdas][(y + 1) % numero_de_celdas] \
+                                      + juego[x % numero_de_celdas][(y + 1) % numero_de_celdas] \
+                                      + juego[(x + 1) % numero_de_celdas][(y + 1) % numero_de_celdas]
+                    # reglas del juego
+                    # Una célula viva con 2 o 3 células vecinas vivas sigue viva, en otro caso muere (por "soledad" o "superpoblación")
+                    if juego[x][y] == 1 and (celulas_vecinas < 2 or celulas_vecinas > 3):
+                        actualizo_juego[x][y] = 0
+                    # 1 si una celula esta muerta y tiene 3 vecinas vivas la celula nace
+                    elif juego[x][y] == 0 and celulas_vecinas == 3:
+                        actualizo_juego[x][y] = 1
 
                 # creo una lista especificando sus coordenadas x & y de las celulas para posteriormente ser pintadas
                 celda = [(x * d_celdas, y * d_celdas), ((x + 1) * d_celdas, y * d_celdas),
