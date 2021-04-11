@@ -1,0 +1,4 @@
+1 Ejecutar gameoflife.py en un IDE de python
+2 para comenzar y pausar en cualquiera de los modos presione la tecla "P"
+3 para salir de un modo presione la tecla "Q"
+4 para cambiar la velocidad presione la tecla "UP" y "DOWN"
